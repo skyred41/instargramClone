@@ -3,25 +3,19 @@ package com.instargramClone.api;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.instargramClone.web.Login.NaverLoginReqVO;
 import com.instargramClone.web.Login.NaverLoginResVO;
-
 
 
 public class HttpConnector {
@@ -58,9 +52,6 @@ public class HttpConnector {
 			// commond라는 JSONArray를 담을 jsonObject 생성
 			JSONObject commands = new JSONObject();
 			
-			HashMap<String, String> map = new HashMap<>();
-			//map.put("grant_type", value);
-			
 			commands.put("commands",naverReqVO) ;
 			
 			// request에 쓰기
@@ -93,7 +84,6 @@ public class HttpConnector {
 				logger.info( "통신 실패");				
 			}
 			
-
 			
 		} catch (Exception e) {
 			e.printStackTrace();

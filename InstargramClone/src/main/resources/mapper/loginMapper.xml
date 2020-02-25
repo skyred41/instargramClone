@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.instargramClone.mapper.LoginMapper">
+
+	<select id="selectUserInfo">
+		SELECT
+			user_id,
+			user_name,
+			PASSWORD,
+			password_expiry_date,
+			last_password,
+			email,
+			phone,
+			login_fail_cnt,
+			birtday,
+			naver_login_id,
+			google_login_id
+		FROM INST_USER_MASTER
+		<if test="naverLoginId != null">
+			WHERE naver_login_id ="";
+		</if>
+		<if test="googleLoginId != null">
+			WHERE google_login_id ="";
+		</if>
+		<if test="loginId != null">
+			WHERE loginId ="";
+		</if>
+		
+	</select>
+	<!--새로 추가  -->
+	<insert id="insertUserInfo">
+		INSERT INTO INST_USER_MASTER(
+			USER_ID,
+			USER_NAME,
+			PASSWORD,
+			PASSWORD_EXPIRY_DATE,
+			EMAIL,
+			PHONE,
+			LOGIN_FAIL_CNT,
+			BIRTDAY,
+			NAVER_LOGIN_ID,
+			GOOGLE_LOGIN_ID,
+			REG_DAY,
+			REG_TIME
+		)VALUES(
+			#{userId},
+			#{userName},
+			#{password},
+			DATE_FORMAT(DATE_ADD(NOW(),INTERVAL 90 DAY),'%Y%m%d'),
+			#{email},
+			#{phone},
+			0,
+			#{birtday},
+			#{naverLoginId},
+			#{googleLoginId},
+			DATE_FORMAT(NOW(), '%Y%m%d'),
+			DATE_FORMAT(NOW(), '%h%i%s')
+		)
+	</insert>
+
+
+	<!--  -->
+	<insert id="create">
+		INSERT INTO tb1_board ( title, content, writer)
+		VALUES( #{title}, #{content}, #{writer})
+	</insert>
+	
+	<select id="read" resultType="org.zerock.domain.BoardVO">
+		SELECT
+			bno, title, content, writer, regdate, viewcnt
+		FROM
+			tb1_board
+		WHERE bno = #{bno}
+	</select>
+	
+	<update id="update">
+		UPDATE
+			tb1_board
+		SET title = #{title}, content = #{content}
+		WHERE bno = #{bno}
+	</update>
+	
+	<delete id="delete">
+		delete from tb1_board where bno = #{bno}
+	</delete>
+	
+	<select id="listAll" resultType="org.zerock.domain.BoardVO">
+		<![CDATA[
+			SELECT
+				bno, title, content, writer, regdate, viewcnt
+			FROM
+				tb1_board
+			WHERE bno > 0
+			ORDER BY bno desc, regdate desc
+		]]>
+	</select>
+	
+	<select id="listPage" resultType="org.zerock.domain.BoardVO">
+		<![CDATA[
+			SELECT
+				bno, title, content, writer, regdate, viewcnt
+			FROM
+				tb1_board
+			WHERE bno > 0
+			ORDER BY bno, desc, regdate desc
+			limit #{page}, 10
+		]]>
+	</select>
+	
+	
+	<select id="listCriteria" resultType="org.zerock.domain.BoardVO">
+		<![CDATA[
+			SELECT
+				bno, title, content, writer, regdate,
+				viewcnt
+			FROM tb1_board
+			WHERE bno > 0
+			ORDER BY bno desc, regdate desc
+			limit #{pageStart}, #{perPageNum}
+		]]>
+	</select>
+	
+	<select id="countPaging" resultType="int">
+		<![CDATA[
+			SELECT
+				COUNT( bno )
+			FROM tb1_board
+			WHERE	
+				bno > 0
+		]]>
+	</select>
+	
+	<select id="listSearch" resultType="BoardVO">
+		<![CDATA[
+			SELECT
+			*
+			FROM tb1_board
+			WHERE bno > 0
+		]]>
+			<include refid="search"></include>
+		<![CDATA[
+			ORDER BY bno DESC
+			LIMIT #{pageStart}, #{perPageNum}
+		]]>
+	</select>
+		
+	<select id="listSearchCount" resultType="int"	>
+		<![CDATA[
+			select count(*)
+			from tb1_board
+			where bno >0 
+		]]>
+			<include refid="search"></include>
+	</select>
+	
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">
+				AND title like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'c'.toString()">
+				AND content like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'w'.toString()">
+				AND writer like CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="searchType == 'tc'.toString()">
+				AND ( title like CONCAT('%', #{keyword}, '%') OR content like CONCAT( '%', #{keyword}, '%') )
+			</if>
+			<if test="searchType == 'cw'.toString()">
+				AND ( writer like CONCAT('%', #{keyword}, '%') OR content like CONCAT( '%', #{keyword}, '%') )
+			</if>
+			<if test="searchType == 'tcw'.toString()">
+				AND ( 	writer like CONCAT('%', #{keyword}, '%') 
+					OR 
+						content like CONCAT( '%', #{keyword}, '%') 
+					OR
+						title like CONCAT('%', #{keyword}, '%'))
+			</if>
+		</if>
+		
+	</sql>
+</mapper>
